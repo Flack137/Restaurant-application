@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Вхід{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
+    <div class="card shadow p-4" style="max-width: 400px; width: 100%;">
+        <h2 class="text-center mb-4">Вхід</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_username" class="form-label">Ім'я користувача</label>
+                <input type="text" name="username" id="id_username" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label for="id_password" class="form-label">Пароль</label>
+                <input type="password" name="password" id="id_password" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-danger w-100">Увійти</button>
+        </form>
+        <p class="text-center mt-3">
+            Ще не маєте акаунта? <a href="{% url 'register' %}">Зареєструватися</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

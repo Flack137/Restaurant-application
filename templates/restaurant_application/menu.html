@@ -1,17 +1,25 @@
 {% extends "base.html" %}
-
 {% block title %}Меню{% endblock %}
 
 {% block content %}
-<h2>Наше меню</h2>
-<ul>
+<h1 class="mb-4">Наше меню</h1>
+
+<div class="row">
     {% for dish in dishes %}
-        <li>
-            <strong>{{ dish.name }}</strong> — {{ dish.price }}₴ <br>
-            {{ dish.description }}
-        </li>
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if dish.image %}
+                    <img src="{{ dish.image.url }}" class="card-img-top" alt="{{ dish.name }}">
+                {% endif %}
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">{{ dish.name }}</h5>
+                    <p class="card-text text-muted">{{ dish.description }}</p>
+                    <p class="mt-auto fw-bold">{{ dish.price }} грн</p>
+                </div>
+            </div>
+        </div>
     {% empty %}
-        <li>Поки що немає страв.</li>
+        <p>Страви поки що відсутні.</p>
     {% endfor %}
-</ul>
+</div>
 {% endblock %}

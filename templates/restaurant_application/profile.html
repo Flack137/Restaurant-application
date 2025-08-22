@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Профіль{% endblock %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header text-white text-center" style="background-color:#800020;">
+                    <h4 class="mb-0">Особистий кабінет</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Ім'я:</strong> {{ user.username }}</p>
+                    <p><strong>Електронна пошта:</strong> {{ user.email }}</p>
+
+                    <p>
+                        <strong>Пароль:</strong>
+                        <span id="password-field">•••••••••••</span>
+                        <button id="toggle-password" class="btn btn-sm btn-outline-secondary ms-2">
+                            👁 Показати
+                        </button>
+                    </p>
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{% url 'logout' %}" class="btn btn-danger rounded-pill px-4">Вийти</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById("toggle-password").addEventListener("click", function() {
+    const passwordField = document.getElementById("password-field");
+    if (passwordField.textContent === "•••••••••••") {
+        passwordField.textContent = "Попався! Пороль захований у системі 🔒";
+        this.textContent = "🙈 Сховати";
+    } else {
+        passwordField.textContent = "•••••••••••";
+        this.textContent = "👁 Показати";
+    }
+});
+</script>
+{% endblock %}

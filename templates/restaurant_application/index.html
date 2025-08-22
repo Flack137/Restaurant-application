@@ -1,8 +1,22 @@
 {% extends "base.html" %}
-
 {% block title %}Головна{% endblock %}
 
 {% block content %}
-<h2>Ласкаво просимо до нашого ресторану!</h2>
-<p>Тут ви зможете замовити улюблені страви онлайн.</p>
+<h1>Популярні страви</h1>
+<div class="row">
+    {% for dish in dishes %}
+        <div class="col-md-4">
+            <div class="card mb-3">
+                {% if dish.image %}
+                    <img src="{{ dish.image.url }}" class="card-img-top" alt="{{ dish.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ dish.name }}</h5>
+                    <p class="card-text">{{ dish.description|truncatewords:15 }}</p>
+                    <p><strong>{{ dish.price }} грн</strong></p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
 {% endblock %}

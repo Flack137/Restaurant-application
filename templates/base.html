@@ -3,22 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Ресторан{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #fdf5f5; /* ніжний кремовий */
+            color: #2c2c2c;
+        }
+        .navbar {
+            background-color: #800020 !important; /* винний */
+        }
+        .navbar-brand, .nav-link {
+            color: #fdf5f5 !important;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #ffd6d6 !important; /* світліший відтінок */
+        }
+        .btn-wine {
+            background-color: #800020;
+            color: #fff;
+            border-radius: 8px;
+            padding: 8px 16px;
+            transition: 0.3s;
+        }
+        .btn-wine:hover {
+            background-color: #a83246;
+            color: #fff;
+        }
+        footer {
+            background-color: #800020;
+            color: #fdf5f5;
+            padding: 15px 0;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>🍴 Ресторанний додаток</h1>
-        <nav>
-            <a href="/">Головна</a> |
-            <a href="/menu/">Меню</a>
-        </nav>
-    </header>
 
-    <main>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="{% url 'index' %}">Ресторан</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'menu' %}">Меню</a></li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Профіль</a></li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-wine ms-2">Вихід</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item"><a class="nav-link" href="{% url 'login' %}">Вхід</a></li>
+                        <li class="nav-item"><a class="nav-link" href="{% url 'register' %}">Реєстрація</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+
+    <div class="container mt-4">
         {% block content %}{% endblock %}
-    </main>
+    </div>
 
-    <footer>
-        <p>Зроблено з ❤️ командою RestaurantApp</p>
-    </footer>
 </body>
 </html>
