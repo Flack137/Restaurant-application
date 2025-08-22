@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Ресторан{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>🍴 Ресторанний додаток</h1>
+        <nav>
+            <a href="/">Головна</a> |
+            <a href="/menu/">Меню</a>
+        </nav>
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>Зроблено з ❤️ командою RestaurantApp</p>
+    </footer>
+</body>
+</html>
