@@ -23,16 +23,37 @@ class Dish(models.Model):
 
 
 class Order(models.Model):
+    PAYMENT_METHODS = [
+        ("card", "Онлайн карткою"),
+        ("cash", "Готівка при отриманні"),
+    ]
+
+    STATUS_CHOICES = [
+        ("new", "Нове"),
+        ("paid", "Оплачене"),
+        ("completed", "Виконане"),
+    ]
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Користувач")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Створено")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата створення")
     is_paid = models.BooleanField(default=False, verbose_name="Оплачено")
 
+    full_name = models.CharField(max_length=200, verbose_name="ПІБ")
+    phone = models.CharField(max_length=20, verbose_name="Телефон")
+    address = models.TextField(verbose_name="Адреса доставки")
+    payment_method = models.CharField(
+        max_length=10, choices=PAYMENT_METHODS, default="cash", verbose_name="Метод оплати"
+    )
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="new", verbose_name="Статус замовлення"
+    )
+
     def __str__(self):
-        return f"Замовлення {self.id} від {self.user.username}"
+        return f"Order {self.id} by {self.user.username}"
 
     @property
     def total_price(self):
-        return sum(item.total_price for item in self.items.all())
+        return sum(item.dish.price * item.quantity for item in self.items.all())
 
 
 class OrderItem(models.Model):

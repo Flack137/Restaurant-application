@@ -48,6 +48,7 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'menu' %}">Меню</a></li>
                 {% if user.is_authenticated %}
                     <li class="nav-item"><a class="nav-link" href="{% url 'cart' %}">Кошик</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'order_history' %}">Мої замовлення</a></li>
                     <li class="nav-item"><a class="nav-link" href="{% url 'profile' %}">Профіль</a></li>
                     <li class="nav-item">
                         <form method="post" action="{% url 'logout' %}">
@@ -67,5 +68,8 @@
 <div class="container mt-4">
     {% block content %}{% endblock %}
 </div>
+
+
+</footer>
 </body>
 </html>

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Замовлення успішне{% endblock %}
+
+{% block content %}
+<div class="alert alert-success">
+    <h3>Дякуємо за замовлення!</h3>
+    <p>Ваше замовлення №{{ order.id }} прийняте в обробку.</p>
+    <a href="{% url 'index' %}" class="btn btn-wine mt-3">На головну</a>
+</div>
+{% endblock %}

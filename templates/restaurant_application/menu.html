@@ -3,6 +3,22 @@
 {% block content %}
 <div class="container mt-4">
     <h2 class="mb-4">Наше меню</h2>
+
+    <!-- Фільтр по категоріях -->
+    <div class="mb-4">
+        <a href="{% url 'menu' %}"
+           class="btn {% if not selected_category %}btn-danger{% else %}btn-outline-danger{% endif %} me-2">
+            Усі страви
+        </a>
+        {% for category in categories %}
+            <a href="{% url 'menu' %}?category={{ category.id }}"
+               class="btn {% if selected_category == category.id|stringformat:'s' %}btn-danger{% else %}btn-outline-danger{% endif %} me-2">
+                {{ category.name }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Вивід страв -->
     <div class="row">
         {% for dish in dishes %}
         <div class="col-md-4 mb-4">
@@ -10,7 +26,7 @@
                 {% if dish.image %}
                 <img src="{{ dish.image.url }}" class="card-img-top" alt="{{ dish.name }}">
                 {% else %}
-                <img src="https://via.placeholder.com/300x200.png?text=No+Image" class="card-img-top" alt="Немає фото">
+                <img src="https://via.placeholder.com/300x200.png?text=Немає+Фото" class="card-img-top" alt="Немає фото">
                 {% endif %}
                 <div class="card-body">
                     <h5 class="card-title">{{ dish.name }}</h5>

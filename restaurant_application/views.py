@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import RegisterForm
-from .models import Dish, Order, OrderItem
+from .forms import RegisterForm, OrderForm
+from .models import Dish, Order, OrderItem, Category
 
 
 def index(request):
@@ -11,8 +11,19 @@ def index(request):
 
 
 def menu(request):
-    dishes = Dish.objects.all()
-    return render(request, "restaurant_application/menu.html", {"dishes": dishes})
+    category_id = request.GET.get("category")
+    categories = Category.objects.all()
+
+    if category_id:
+        dishes = Dish.objects.filter(category_id=category_id)
+    else:
+        dishes = Dish.objects.all()
+
+    return render(request, "restaurant_application/menu.html", {
+        "dishes": dishes,
+        "categories": categories,
+        "selected_category": category_id,
+    })
 
 
 def register(request):
@@ -37,7 +48,7 @@ def custom_logout(request):
     return redirect('/')
 
 
-# === CART ===
+
 
 @login_required
 def add_to_cart(request, dish_id):
@@ -74,3 +85,55 @@ def update_quantity(request, item_id):
 def cart_view(request):
     order = Order.objects.filter(user=request.user, is_paid=False).first()
     return render(request, "restaurant_application/cart.html", {"order": order})
+
+
+@login_required
+def checkout(request):
+    order = Order.objects.filter(user=request.user, is_paid=False).first()
+    if not order or not order.items.exists():
+        return redirect("cart")
+
+    if request.method == "POST":
+        form = OrderForm(request.POST, instance=order)
+        if form.is_valid():
+            order = form.save(commit=False)
+
+
+            order.status = "new"
+            order.is_paid = True
+            order.save()
+
+            return render(request, "restaurant_application/order_success.html", {"order": order})
+    else:
+        form = OrderForm(instance=order)
+
+    return render(request, "restaurant_application/order.html", {"form": form, "order": order})
+
+@login_required
+def order_history(request):
+    orders = Order.objects.filter(user=request.user, is_paid=True).order_by("-created_at")
+    return render(request, "restaurant_application/order_history.html", {"orders": orders})
+
+
+@login_required
+def repeat_order(request, order_id):
+    old_order = get_object_or_404(Order, id=order_id, user=request.user)
+
+    new_order = Order.objects.create(
+        user=request.user,
+        full_name=old_order.full_name,
+        phone=old_order.phone,
+        address=old_order.address,
+        payment_method=old_order.payment_method,
+        status="new",
+        is_paid=False,
+    )
+
+    for item in old_order.items.all():
+        OrderItem.objects.create(
+            order=new_order,
+            dish=item.dish,
+            quantity=item.quantity,
+        )
+
+    return redirect("cart")
