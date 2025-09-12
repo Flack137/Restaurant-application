@@ -21,6 +21,15 @@ class Dish(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def average_rating(self):
+        """Повертає середній рейтинг (округлений до 1 знаку) або None, якщо відгуків немає."""
+        reviews = self.reviews.all()
+        if reviews.exists():
+            avg = sum(r.rating for r in reviews) / reviews.count()
+            return round(avg, 1)
+        return None
+
 
 class Order(models.Model):
     PAYMENT_METHODS = [
@@ -71,7 +80,8 @@ class OrderItem(models.Model):
 
 class Review(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Користувач")
-    dish = models.ForeignKey(Dish, on_delete=models.CASCADE, verbose_name="Страва")
+    # related_name='reviews' щоб зручно робити dish.reviews.all()
+    dish = models.ForeignKey(Dish, on_delete=models.CASCADE, verbose_name="Страва", related_name='reviews')
     rating = models.PositiveIntegerField(default=5, verbose_name="Оцінка")
     comment = models.TextField(verbose_name="Коментар")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Створено")

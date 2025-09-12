@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
-from .forms import RegisterForm, OrderForm
-from .models import Dish, Order, OrderItem, Category
+from django.contrib.admin.views.decorators import staff_member_required
+from django.views.decorators.http import require_POST
+
+from .forms import RegisterForm, OrderForm, ReviewForm
+from .models import Dish, Order, OrderItem, Category, Review
 
 
 def index(request):
@@ -46,8 +49,6 @@ def profile(request):
 def custom_logout(request):
     logout(request)
     return redirect('/')
-
-
 
 
 @login_required
@@ -97,17 +98,15 @@ def checkout(request):
         form = OrderForm(request.POST, instance=order)
         if form.is_valid():
             order = form.save(commit=False)
-
-
             order.status = "new"
             order.is_paid = True
             order.save()
-
             return render(request, "restaurant_application/order_success.html", {"order": order})
     else:
         form = OrderForm(instance=order)
 
     return render(request, "restaurant_application/order.html", {"form": form, "order": order})
+
 
 @login_required
 def order_history(request):
@@ -137,3 +136,38 @@ def repeat_order(request, order_id):
         )
 
     return redirect("cart")
+
+
+def dish_detail(request, dish_id):
+    dish = get_object_or_404(Dish, id=dish_id)
+    reviews = dish.reviews.all().order_by("-created_at")
+
+    if request.method == "POST":
+        # створення відгуку
+        if request.user.is_authenticated:
+            form = ReviewForm(request.POST)
+            if form.is_valid():
+                review = form.save(commit=False)
+                review.dish = dish
+                review.user = request.user
+                review.save()
+                return redirect("dish_detail", dish_id=dish.id)
+        else:
+            return redirect("login")
+    else:
+        form = ReviewForm()
+
+    return render(request, "restaurant_application/dish_detail.html", {
+        "dish": dish,
+        "reviews": reviews,
+        "form": form,
+    })
+
+
+@staff_member_required
+@require_POST
+def delete_review(request, review_id):
+    review = get_object_or_404(Review, id=review_id)
+    dish_id = review.dish.id
+    review.delete()
+    return redirect("dish_detail", dish_id=dish_id)

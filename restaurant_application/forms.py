@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Order
+from .models import Order, Review
 
 
 class RegisterForm(UserCreationForm):
@@ -27,4 +27,18 @@ class OrderForm(forms.ModelForm):
             "phone": "Телефон",
             "address": "Адреса доставки",
             "payment_method": "Метод оплати",
+        }
+
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ["comment", "rating"]
+        widgets = {
+            "comment": forms.Textarea(attrs={"rows": 3, "placeholder": "Ваш відгук..."}),
+            "rating": forms.Select(attrs={"class": "form-select"}),
+        }
+        labels = {
+            "comment": "Відгук",
+            "rating": "Оцінка (1-5)",
         }

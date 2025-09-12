@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}{{ dish.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Зображення -->
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                {% if dish.image %}
+                    <img src="{{ dish.image.url }}" class="card-img-top" alt="{{ dish.name }}">
+                {% else %}
+                    <img src="https://via.placeholder.com/500x300" class="card-img-top" alt="Немає фото">
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Інформація про страву -->
+        <div class="col-md-6">
+            <h2 class="mb-1">{{ dish.name }}</h2>
+            <p class="text-muted mb-3">{{ dish.category.name }}</p>
+            <p><strong>Опис:</strong> {{ dish.description }}</p>
+            <p><strong>Інгредієнти:</strong> {{ dish.ingredients }}</p>
+            <p><strong>Ціна:</strong> <span class="text-success fw-bold">{{ dish.price }} грн</span></p>
+
+            {% if dish.average_rating %}
+                <p><strong>Середній рейтинг:</strong> ⭐ {{ dish.average_rating }}</p>
+            {% else %}
+                <p class="text-muted">Поки немає оцінок</p>
+            {% endif %}
+
+            <div class="d-flex gap-2 my-3">
+                {% if dish.available %}
+                    <a href="{% url 'add_to_cart' dish.id %}" class="btn btn-success flex-fill">
+                        🛒 Додати в кошик
+                    </a>
+                {% else %}
+                    <button class="btn btn-secondary flex-fill" disabled>Немає в наявності</button>
+                {% endif %}
+                <a href="{% url 'menu' %}" class="btn btn-primary flex-fill">⬅ Повернутися до меню</a>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Відгуки -->
+    <div class="reviews">
+        <h3 class="mb-4">Відгуки</h3>
+
+        {% for review in reviews %}
+            <div class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ review.user.username }}</strong>
+                            <div>Оцінка: ⭐ {{ review.rating }}</div>
+                        </div>
+                        <small class="text-muted">{{ review.created_at|date:"d.m.Y H:i" }}</small>
+                    </div>
+                    <p class="mt-2 mb-0">{{ review.comment }}</p>
+
+                    {% if user.is_staff %}
+                        <form method="post" action="{% url 'delete_review' review.id %}" class="mt-2" onsubmit="return confirm('Ви впевнені, що хочете видалити відгук?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">🗑 Видалити</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% empty %}
+            <p class="text-muted">Відгуків поки немає.</p>
+        {% endfor %}
+    </div>
+
+    <hr class="my-5">
+
+    <!-- Форма відгуку -->
+    <div class="leave-review">
+        <h4 class="mb-3">Залишити відгук</h4>
+
+        {% if user.is_authenticated %}
+            <form method="post">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="comment" class="form-label">Ваш відгук:</label>
+                    <textarea name="comment" id="comment" rows="3" class="form-control" required></textarea>
+                </div>
+
+                <!-- Рейтинг кнопками -->
+                <div class="mb-3">
+                    <label class="form-label d-block">Оцінка:</label>
+                    <div class="rating-buttons">
+                        {% for i in "12345" %}
+                            <input type="radio" id="rate{{ i }}" name="rating" value="{{ i }}" required>
+                            <label for="rate{{ i }}">{{ i }}</label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Надіслати</button>
+            </form>
+        {% else %}
+            <p><a href="{% url 'login' %}">Увійдіть</a>, щоб залишити відгук.</p>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.rating-buttons {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.rating-buttons input {
+  display: none;
+}
+
+.rating-buttons label {
+  padding: 0.5rem 0.9rem;
+  border: 2px solid #ccc;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.rating-buttons label.active {
+  border-color: gold;
+  background-color: gold;
+  color: #000;
+}
+</style>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const buttons = document.querySelectorAll(".rating-buttons label");
+  let selectedIndex = -1; // збережена оцінка (індекс)
+
+  function highlight(upTo) {
+    buttons.forEach((b, i) => {
+      b.classList.toggle("active", i <= upTo);
+    });
+  }
+
+  // hover
+  buttons.forEach((btn, idx) => {
+    btn.addEventListener("mouseenter", () => {
+      highlight(idx);
+    });
+    btn.addEventListener("mouseleave", () => {
+      highlight(selectedIndex);
+    });
+  });
+
+  // клік — фіксуємо вибір
+  buttons.forEach((btn, idx) => {
+    btn.addEventListener("click", () => {
+      selectedIndex = idx;
+      highlight(idx);
+      document.getElementById("rate" + (idx + 1)).checked = true;
+    });
+  });
+});
+</script>
+{% endblock %}
