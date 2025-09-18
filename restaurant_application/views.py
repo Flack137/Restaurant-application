@@ -3,13 +3,18 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.admin.views.decorators import staff_member_required
 from django.views.decorators.http import require_POST
+from django.db.models import Avg
 
 from .forms import RegisterForm, OrderForm, ReviewForm
 from .models import Dish, Order, OrderItem, Category, Review
 
 
 def index(request):
-    dishes = Dish.objects.all()[:5]
+    # Топ-6 страв за середнім рейтингом
+    dishes = (
+        Dish.objects.annotate(avg_rating=Avg("reviews__rating"))
+        .order_by("-avg_rating")[:6]
+    )
     return render(request, "restaurant_application/index.html", {"dishes": dishes})
 
 

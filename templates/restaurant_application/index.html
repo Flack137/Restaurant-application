@@ -14,6 +14,11 @@
                     <h5 class="card-title">{{ dish.name }}</h5>
                     <p class="card-text">{{ dish.description|truncatewords:15 }}</p>
                     <p><strong>{{ dish.price }} грн</strong></p>
+                    {% if dish.avg_rating %}
+                        <p>⭐ {{ dish.avg_rating|floatformat:1 }}/5</p>
+                    {% else %}
+                        <p>Ще немає оцінок</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
