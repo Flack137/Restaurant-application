@@ -5,11 +5,25 @@ from .models import Order, Review
 
 
 class RegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={"class": "form-control", "placeholder": "Email"})
+    )
 
     class Meta:
         model = User
         fields = ["username", "email", "password1", "password2"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({"class": "form-control"})
+            if field_name == "username":
+                field.widget.attrs["placeholder"] = "Username"
+            elif field_name == "password1":
+                field.widget.attrs["placeholder"] = "Пароль"
+            elif field_name == "password2":
+                field.widget.attrs["placeholder"] = "Підтвердження пароля"
 
 
 class OrderForm(forms.ModelForm):
@@ -35,7 +49,7 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ["comment", "rating"]
         widgets = {
-            "comment": forms.Textarea(attrs={"rows": 3, "placeholder": "Ваш відгук..."}),
+            "comment": forms.Textarea(attrs={"class": "form-control", "rows": 3, "placeholder": "Ваш відгук..."}),
             "rating": forms.Select(attrs={"class": "form-select"}),
         }
         labels = {
